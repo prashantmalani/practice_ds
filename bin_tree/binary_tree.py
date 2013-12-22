@@ -35,6 +35,8 @@ class Node:
           self.left.Insert(data)
 
   def PrintInorder(self):
+    """ Recursive implementation of inorder traversal.
+    """
     if self.left != None:
       self.left.PrintInorder()
 
@@ -42,4 +44,45 @@ class Node:
 
     if self.right != None:
       self.right.PrintInorder()
+
+  def IsPresent(self, data, parent=None):
+    """ Search if a given element is present in the
+    tree.
+    Return the node and it's parent if the element is found.
+    """
+    if self.data == data:
+      print 'Element is present'
+      return self, parent
+    elif data > self.data:
+      if self.right is None:
+        print 'Element is not present'
+        return None, None
+      return self.right.IsPresent(data, self)
+    else:
+      if self.left is None:
+        print 'Element is not present'
+        return None, None
+      return self.left.IsPresent(data, self)
+
+# Helper function to set up an initial binary tree:
+#                8
+#              /   \
+#             3     10
+#           /   \      \
+#          1     6      14
+#              /   \   /
+#             4     7 13
+#
+def SetupBinTree():
+  root = Node(8)
+  root.Insert(3)
+  root.Insert(10)
+  root.Insert(1)
+  root.Insert(6)
+  root.Insert(4)
+  root.Insert(7)
+  root.Insert(14)
+  root.Insert(13)
+  return root
+
 
