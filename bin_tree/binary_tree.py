@@ -45,6 +45,24 @@ class Node:
     if self.right != None:
       self.right.PrintInorder()
 
+  def PrintInOrderNonRec(self):
+    """ Print in order, but non recursively
+    """
+    stack = []
+    cur = self
+    while True:
+      while cur is not None:
+        stack.append(cur)
+        cur = cur.left
+      if len(stack) > 0 and cur is None:
+        cur = stack.pop()
+        print cur.data
+        cur = cur.right
+      elif len(stack) is 0 and cur is None:
+        return
+    pass
+
+
   def IsPresent(self, data, parent=None):
     """ Search if a given element is present in the
     tree.
