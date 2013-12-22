@@ -64,6 +64,60 @@ class Node:
         return None, None
       return self.left.IsPresent(data, self)
 
+  def Delete(self, data):
+    """ Delete element from tree. Three options have to be considered :-
+    1. Element has no children (just make the parent's child link point to None
+    2. Element has one child (Paren't new child is the deleted elements child)
+    3. Element has 2 children (Replace the deleted element with the minimum element of
+     the right sub-tree (to maintain the BST nature of the tree, and the delete that element)
+
+    This function should only be called from Root.
+    Returns the root. This is inserted because of the following possibility:
+    Root is deleted, and root had only one child.
+    """
+
+    # Find the element and it's parent
+    node_to_del, parent = self.IsPresent(data)
+    if node_to_del is None:
+      print "Node is not in Binary Tree!"
+      return self
+
+    # Case if there are no children (or 1 child)
+    if node_to_del.left is None or node_to_del.right is None:
+      # Have to take care of the case where node is Root
+      if parent is None:
+        if node_to_del.left is None:
+          new_root = node_to_del.right
+        else:
+          new_root = node_to_del.left
+        del node_to_del
+        return new_root
+
+      if node_to_del.data < parent.data:
+        parent.left = node_to_del.left
+      else:
+        parent.right = node_to_del.right
+      del node_to_del
+      return self
+
+    # Case with 2 children
+    # Find the smallest element in right subtree
+    new_replacement = FindMin(node_to_del.right)
+
+    #Get the node and parent of the new replacement
+    new_replacement, parent = self.IsPresent(new_replacement.data)
+    node_to_del.data = new_replacement.data
+
+    #Remove the parent's link to the new_replacement (which will then get deleted)
+    # Since this is the smallest element, we can be guaranteed it doesn't have a left node
+    parent.right = new_replacement.right
+
+    del new_replacement
+    return self
+
+
+
+
 # Helper function to set up an initial binary tree:
 #                8
 #              /   \
@@ -84,5 +138,15 @@ def SetupBinTree():
   root.Insert(14)
   root.Insert(13)
   return root
+
+def FindMin(node):
+  """ Find the minimum element in the binary search tree,
+  rooted at the argument "node".
+  """
+  if node.left is None:
+    return node
+  else:
+    return FindMin(node.left)
+
 
 
