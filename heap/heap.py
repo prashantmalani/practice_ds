@@ -45,3 +45,22 @@ class Heap:
     for i in list_of_indices:
       self.MaxHeapify(i)
 
+  def Insert(self, data):
+    """ Insert element into heap. Add element to end of heap array, and then
+    modify to ensure heap property is maintained.
+    """
+    self.array.append(data)
+    ind = len(self.array) - 1
+    parent = (ind - 1) / 2
+    while parent >= 0:
+      print parent, ind
+      if self.array[parent] < self.array[ind]:
+        # Swap the two
+        swap = self.array[parent]
+        self.array[parent] = self.array[ind];
+        self.array[ind] = swap
+        ind = parent
+        parent = (ind - 1) / 2
+      else:
+        return
+
