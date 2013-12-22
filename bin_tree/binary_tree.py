@@ -115,7 +115,21 @@ class Node:
     del new_replacement
     return self
 
-
+  def Depth(self):
+    if self.left is None and self.right is None:
+      return 1
+    if self.left:
+      l_depth = self.left.Depth()
+    else:
+      l_depth = 0
+    if self.right:
+      r_depth = self.right.Depth()
+    else:
+      r_depth = 0
+    if l_depth > r_depth:
+      return 1 + l_depth
+    else:
+      return 1 + r_depth
 
 
 # Helper function to set up an initial binary tree:
