@@ -81,6 +81,34 @@ int delete(struct node **head, int val)
 	return 0;
 }
 
+void reverse(struct node **head)
+{
+	struct node *prev, *cur, *next;
+
+	if (!(*head) || (*head)->next == NULL) {
+		printf("No reversing to do, since either empty list or single entry.\n");
+		return;
+	}
+
+	prev = NULL;
+	cur = *head;
+	next = cur->next;
+
+	while (next) {
+		cur->next = prev;
+		prev = cur;
+		cur = next;
+		next = next->next;
+	}
+
+	/*
+	 * After termination, cur will point to the head, so make sure it points to prev, and
+	 * update HEAD.
+	 */
+	cur->next = prev;
+	*head = cur;
+}
+
 int main()
 {
 
@@ -92,6 +120,8 @@ int main()
 	create_node(&head, 7);
 	create_node(&head, 8);
 	print_list(head);
+	reverse(&head);
+	print_list(head);
 	delete(&head, -10);
 	print_list(head);
 	delete(&head, 5);
@@ -99,6 +129,16 @@ int main()
 	delete(&head, 3);
 	print_list(head);
 	delete(&head, 8);
+	print_list(head);
+	reverse(&head);
+	print_list(head);
+	delete(&head, 4);
+	print_list(head);
+	reverse(&head);
+	print_list(head);
+	delete(&head, 6);
+	print_list(head);
+	reverse(&head);
 	print_list(head);
 	return 0;
 }
