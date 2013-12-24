@@ -17,9 +17,15 @@ enum color {
 	RED,
 };
 
+/* Some helper macros */
 #define IS_RED(node) \
 	(node->col == RED)
 
+#define IS_NIL(node) \
+	(node == nil_node)
+
+#define IS_LEFT_CHILD(node, p) \
+	(p->val > node->val)
 /*
  * Define the tree node.
  */
@@ -30,7 +36,6 @@ struct node {
 	struct node *p;
 	enum color col;
 };
-
 
 struct node *root = NULL;
 
@@ -49,11 +54,12 @@ struct node *create_node(int val)
 	/* Initialize children, parents etc. */
 	new_node->l = nil_node;
 	new_node->r = nil_node;
-	new_node->p = NULL; /* This has to be assigned after insertion */
+	new_node->p = nil_node; /* This has to be assigned after insertion */
 	new_node->col = RED;
 
 	return new_node;
 }
+
 
 /* Insert function:
  * Create a new node.
@@ -62,7 +68,47 @@ struct node *create_node(int val)
  */
 void insert(struct node **root, int val)
 {
-	/* GLORIOUS CODE GOES HERE */
+	struct node *new_node = create_node(val);
+	struct node *par = NULL, *cur = NULL;
+
+	if (*root == NULL) {
+		/* Edge case where tree is empty */
+		*root = new_node;
+		new_node->col = BLACK; /* RB tree property : root is black */
+		return;
+	}
+
+	/* First insert the node */
+	par = (*root)->p;
+	cur = *root;
+	while (!IS_NIL(cur)) {
+		if (val > cur->val) {
+			par = cur;
+			cur = cur->r;
+		} else {
+			par = cur;
+			cur = cur->l;
+		}
+	}
+
+	new_node->p = par;
+	if (IS_LEFT_CHILD(new_node, par))
+		par->l = new_node;
+	else
+		par->r = new_node;
+
+	/* Do the balancing and rotation here */
+	return;
+}
+
+void print_in_order(struct node *node)
+{
+	if (IS_NIL(node))
+		return;
+
+	print_in_order(node->l);
+	printf("%d ", node->val);
+	print_in_order(node->r);
 }
 
 int main()
@@ -79,6 +125,10 @@ int main()
 	nil_node->p = NULL; /*We really don't care whether the node has a parent or not */
 	nil_node->col = BLACK;
 	nil_node->val = 0xDEADBEEF;
+
+	insert(&root, 10);
+	insert(&root, 5);
+	insert(&root, 20);
 
 	return 0;
 }
