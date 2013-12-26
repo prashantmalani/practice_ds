@@ -7,35 +7,7 @@
  * delete and traversal (inorder).
  *
  */
-#include<stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-
-
-enum color {
-	BLACK,
-	RED,
-};
-
-/* Some helper macros */
-#define IS_RED(node) \
-	(node->col == RED)
-
-#define IS_NIL(node) \
-	(node == nil_node)
-
-#define IS_LEFT_CHILD(node) \
-	(node->p->l == node)
-/*
- * Define the tree node.
- */
-struct node {
-	int val;
-	struct node *l;
-	struct node *r;
-	struct node *p;
-	enum color col;
-};
+#include "rb_tree.h"
 
 struct node *root = NULL;
 
@@ -59,67 +31,6 @@ struct node *create_node(int val)
 
 	return new_node;
 }
-
-/* Rotate left helper function:
- *
- *              A
- *	      /    \
- *	     a      B
- *	          /   \
- *	         b    c
- *
- * Becomes :
- *             B
- *          /	  \
- *         A	   c
- *       /   \
- *      a     b
- *
- */
-void rotate_left(struct node *x)
-{
-	struct node *y = x->p;
-	if(IS_LEFT_CHILD(y))
-		y->p->l = x;
-	else
-		y->p->r = x;
-	x->p = y->p;
-	y->r = x->l;
-	y->r->p = y;
-	x->l = y;
-	y->p = x;
-}
-
-/* Rotate right helper function:
- *
- *              A
- *	      /    \
- *	     B     a
- *	   /   \
- *	   b    c
- *
- * Becomes :
- *             B
- *          /	  \
- *         A	   a
- *       /   \
- *      b     c
- *
- */
-void rotate_right(struct node *x)
-{
-	struct node *y = x->p;
-	if(IS_LEFT_CHILD(y))
-		y->p->l = x;
-	else
-		y->p->r = x;
-	x->p = y->p;
-	y->l = x->r;
-	y->l->p = y;
-	x->r = y;
-	y->p = x;
-}
-
 
 /* Insert function:
  * Create a new node.
