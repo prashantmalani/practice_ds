@@ -24,8 +24,8 @@ enum color {
 #define IS_NIL(node) \
 	(node == nil_node)
 
-#define IS_LEFT_CHILD(node, p) \
-	(p->val > node->val)
+#define IS_LEFT_CHILD(node) \
+	(node->p->l == node)
 /*
  * Define the tree node.
  */
@@ -60,6 +60,66 @@ struct node *create_node(int val)
 	return new_node;
 }
 
+/* Rotate left helper function:
+ *
+ *              A
+ *	      /    \
+ *	     a      B
+ *	          /   \
+ *	         b    c
+ *
+ * Becomes :
+ *             B
+ *          /	  \
+ *         A	   c
+ *       /   \
+ *      a     b
+ *
+ */
+void rotate_left(struct node *x)
+{
+	struct node *y = x->p;
+	if(IS_LEFT_CHILD(y))
+		y->p->l = x;
+	else
+		y->p->r = x;
+	x->p = y->p;
+	y->r = x->l;
+	y->r->p = y;
+	x->l = y;
+	y->p = x;
+}
+
+/* Rotate right helper function:
+ *
+ *              A
+ *	      /    \
+ *	     B     a
+ *	   /   \
+ *	   b    c
+ *
+ * Becomes :
+ *             B
+ *          /	  \
+ *         A	   a
+ *       /   \
+ *      b     c
+ *
+ */
+void rotate_right(struct node *x)
+{
+	struct node *y = x->p;
+	if(IS_LEFT_CHILD(y))
+		y->p->l = x;
+	else
+		y->p->r = x;
+	x->p = y->p;
+	y->l = x->r;
+	y->l->p = y;
+	x->r = y;
+	y->p = x;
+}
+
 
 /* Insert function:
  * Create a new node.
@@ -70,6 +130,7 @@ void insert(struct node **root, int val)
 {
 	struct node *new_node = create_node(val);
 	struct node *par = NULL, *cur = NULL;
+	struct node *x,*y;
 
 	if (*root == NULL) {
 		/* Edge case where tree is empty */
@@ -92,13 +153,89 @@ void insert(struct node **root, int val)
 	}
 
 	new_node->p = par;
-	if (IS_LEFT_CHILD(new_node, par))
+	if (par->val > new_node->val)
 		par->l = new_node;
 	else
 		par->r = new_node;
 
 	/* Do the balancing and rotation here */
-	return;
+
+        /* If there is no grand parent, then we exit immediately */
+        if (IS_NIL(new_node->p->p))
+		return;
+
+	/* Continue doing rotation and balancing while x is not root and x is not a black node */
+	x = new_node;
+	while (!IS_NIL(x->p) && IS_RED(x)) {
+
+		if (IS_LEFT_CHILD(x->p)) {
+			/* Case A: parent is left child */
+			y = x->p->p->r ; /* Right uncle */
+			if (IS_RED(y)) {
+				/* Re colour */
+				x->p->p->col = RED;
+				x->p->col = BLACK;
+				y->col = BLACK;
+			} else {
+				/* Case 2:X is the right child :ZIG ZAG */
+				if (!IS_LEFT_CHILD(x)) {
+					/* Rotate left */
+					rotate_left(x);
+				}
+
+				/* Case 3: x is the left child : ZIG ZIG.
+				 * Note: Case 2 becomes case 3, therfore no else */
+				if (IS_LEFT_CHILD(x)) {
+					/* Right rotate parent and re colour */
+					rotate_right(x->p);
+
+					/* Perform recoloring. make the parent black, and the
+					 * new right child red */
+					x->p->col = BLACK;
+					x->p->r->col = RED;
+				}
+
+			}
+
+		} else {
+			/*
+			 * Case B : parent is right child. This is the symmetric
+			 * opposite of the first case.
+			 */
+			y = x->p->p->l ; /* left uncle */
+			if (IS_RED(y)) {
+				/* Re colour */
+				x->p->p->col = RED;
+				x->p->col = BLACK;
+				y->col = BLACK;
+			} else {
+				/* Case 2: X is the left child :ZIG ZAG */
+				if (IS_LEFT_CHILD(x)) {
+					/* Rotate left */
+					rotate_right(x);
+				}
+
+				/* Case 3: x is the right child : ZIG ZIG.
+				 * Note: Case 2 becomes case 3, therfore no else */
+				if (!IS_LEFT_CHILD(x)) {
+					/* Right rotate parent and re colour */
+					rotate_left(x->p);
+
+					/* Perform recoloring. make the parent black, and the
+					 * new right child red */
+					x->p->col = BLACK;
+					x->p->r->col = RED;
+				}
+			}
+		}
+		x = x->p->p;
+
+	}
+
+	if (IS_NIL(x->p)) {
+		x->col = BLACK;
+		*root = x
+	}
 }
 
 void print_in_order(struct node *node)
@@ -107,7 +244,7 @@ void print_in_order(struct node *node)
 		return;
 
 	print_in_order(node->l);
-	printf("%d ", node->val);
+	printf("%d(%s) ", node->val,IS_RED(node) ? "R" : "B");
 	print_in_order(node->r);
 }
 
@@ -129,6 +266,8 @@ int main()
 	insert(&root, 10);
 	insert(&root, 5);
 	insert(&root, 20);
+
+        print_in_order(root);
 
 	return 0;
 }
