@@ -164,9 +164,19 @@ void insert(struct node **root, int val)
         if (IS_NIL(new_node->p->p))
 		return;
 
+	/* If the parent is not red, we don't need to insert anything, as the RB property
+	 * will be maintained */
+	if (!IS_RED(new_node->p))
+		return;
+
 	/* Continue doing rotation and balancing while x is not root and x is not a black node */
 	x = new_node;
 	while (!IS_NIL(x->p) && IS_RED(x)) {
+
+		/* If we have reached the children of the root (which is black, we should end
+		 */
+		if (IS_NIL(x->p->p))
+			break;
 
 		if (IS_LEFT_CHILD(x->p)) {
 			/* Case A: parent is left child */
@@ -181,20 +191,21 @@ void insert(struct node **root, int val)
 				if (!IS_LEFT_CHILD(x)) {
 					/* Rotate left */
 					rotate_left(x);
+					/* x is now the parent, and we will perform rotate right on it */
+
+				} else {
+					/* we want to do the rotate right on the parent */
+					x = x->p;
 				}
 
 				/* Case 3: x is the left child : ZIG ZIG.
-				 * Note: Case 2 becomes case 3, therfore no else */
-				if (IS_LEFT_CHILD(x)) {
-					/* Right rotate parent and re colour */
-					rotate_right(x->p);
+				 * Right rotate parent and re colour */
+				rotate_right(x);
 
-					/* Perform recoloring. make the parent black, and the
-					 * new right child red */
-					x->p->col = BLACK;
-					x->p->r->col = RED;
-				}
-
+				/* Perform recoloring. make the parent black, and the
+				 * new right child red */
+				x->col = BLACK;
+				x->r->col = RED;
 			}
 
 		} else {
@@ -211,31 +222,40 @@ void insert(struct node **root, int val)
 			} else {
 				/* Case 2: X is the left child :ZIG ZAG */
 				if (IS_LEFT_CHILD(x)) {
-					/* Rotate left */
+					/* Rotate right */
 					rotate_right(x);
+				} else {
+					x = x->p;
 				}
 
 				/* Case 3: x is the right child : ZIG ZIG.
 				 * Note: Case 2 becomes case 3, therfore no else */
-				if (!IS_LEFT_CHILD(x)) {
-					/* Right rotate parent and re colour */
-					rotate_left(x->p);
+				/* Right rotate parent and re colour */
+				rotate_left(x);
 
-					/* Perform recoloring. make the parent black, and the
-					 * new right child red */
-					x->p->col = BLACK;
-					x->p->r->col = RED;
-				}
+				/* Perform recoloring. make the parent black, and the
+				 * new right child red */
+				x->col = BLACK;
+				x->l->col = RED;
 			}
 		}
-		x = x->p->p;
 
+		/* Some edge cases */
+		if (x->p->p)
+			x = x->p->p;
+		else
+			break;
 	}
 
+	/*
+	 * If you have reached the root, while traversal, and by change it's color became red,
+	 * the revert the color to black.
+	 */
 	if (IS_NIL(x->p)) {
-		x->col = BLACK;
-		*root = x
+		*root = x;
 	}
+	(*root)->col = BLACK;
+
 }
 
 void print_in_order(struct node *node)
@@ -266,6 +286,12 @@ int main()
 	insert(&root, 10);
 	insert(&root, 5);
 	insert(&root, 20);
+	insert(&root, 8);
+	insert(&root, 4);
+	insert(&root, 2);
+	insert(&root, 3);
+	insert(&root, 30);
+	insert(&root, 25);
 
         print_in_order(root);
 
