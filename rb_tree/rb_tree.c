@@ -85,7 +85,7 @@ void insert(struct node **root, int val)
 	while (!IS_NIL(x->p) && IS_RED(x)) {
 
 		/* If we have reached the children of the root (which is black, we should end
-		 */
+		*/
 		if (IS_NIL(x->p->p))
 			break;
 
@@ -151,6 +151,14 @@ void insert(struct node **root, int val)
 			}
 		}
 
+		/*
+		 * If you have reached the root, while traversal, and by change it's color became red,
+		 * the revert the color to black.
+		 */
+		if (IS_NIL(x->p)) {
+			*root = x;
+			break;
+		}
 		/* Some edge cases */
 		if (x->p->p)
 			x = x->p->p;
@@ -158,13 +166,7 @@ void insert(struct node **root, int val)
 			break;
 	}
 
-	/*
-	 * If you have reached the root, while traversal, and by change it's color became red,
-	 * the revert the color to black.
-	 */
-	if (IS_NIL(x->p)) {
-		*root = x;
-	}
+	/* Color the root in case it was "discolored" */
 	(*root)->col = BLACK;
 
 }
@@ -177,6 +179,21 @@ void print_in_order(struct node *node)
 	print_in_order(node->l);
 	printf("%d(%s) ", node->val,IS_RED(node) ? "R" : "B");
 	print_in_order(node->r);
+}
+
+/* Find the next highest node in the tree, for node s*/
+struct node *successor(struct node *s)
+{
+	struct node *next = s->r;
+
+	if (IS_NIL(next))
+		return next;
+
+	while (!IS_NIL(next->l)) {
+		next = next->l;
+	}
+
+	return next;
 }
 
 struct node *search(struct node *cur, int val)
@@ -192,6 +209,64 @@ struct node *search(struct node *cur, int val)
 		printf("Element not found\n");
 		return NULL;
 	}
+}
+
+/* Delete:
+ * First perform normal BST deletion, where by you splice the node which is chosen as a replacement.
+ * The send the child of the spliced node, as an input into a function which performs the
+ * necessary rotations to ensure that RB tree structure is not violated.
+ */
+void delete(struct node **root, int val)
+{
+	struct node *del = search(*root, val);
+	struct node *splice;
+	struct node *child_splice;
+	if (!del) {
+		printf("No element to delete\n");
+		return;
+	}
+
+	/* Easy case, where the node is a leaf, simply delete, and update parent.*/
+	if (IS_NIL(del->l) && IS_NIL(del->r)) {
+		if (IS_LEFT_CHILD(del))
+			del->p->l = nil_node;
+		else
+			del->p->r = nil_node;
+
+		/* Only 1 element in entire tree?*/
+		if (del == *root)
+			*root = NULL;
+		free(del);
+		return;
+	}
+
+	if (IS_NIL(del->l) || IS_NIL(del->r)) {
+		splice = del;
+
+	} else {
+		splice = successor(del);
+	}
+
+	if (!IS_NIL(splice->l))
+		child_splice = splice->l;
+	else
+		child_splice = splice->r;
+
+	child_splice->p = splice->p;
+	if (IS_NIL(splice->p)) {
+		*root = child_splice;
+	} else if (IS_LEFT_CHILD(splice)){
+		splice->p->l = child_splice;
+	} else {
+		splice->p->r = child_splice;
+	}
+
+	if (splice != del)
+		del->val = splice->val;
+	if (!IS_RED(splice))
+		/* Call fix-up on child_splice */
+	free(splice);
+	return;
 }
 
 int main()
@@ -218,6 +293,7 @@ int main()
 	insert(&root, 3);
 	insert(&root, 30);
 	insert(&root, 25);
+	insert(&root, 1);
 
         print_in_order(root);
 
