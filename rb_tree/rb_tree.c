@@ -179,6 +179,21 @@ void print_in_order(struct node *node)
 	print_in_order(node->r);
 }
 
+struct node *search(struct node *cur, int val)
+{
+	if (cur->val == val)
+		return cur;
+
+	if (val < cur->val && !IS_NIL(cur->l))
+		return search(cur->l, val);
+	else if (val > cur->val && !IS_NIL(cur->r))
+		return search(cur->r, val);
+	else {
+		printf("Element not found\n");
+		return NULL;
+	}
+}
+
 int main()
 {
 	/* Initialize the nil node */
