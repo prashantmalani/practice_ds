@@ -11,11 +11,6 @@
 
 struct node *root = NULL;
 
-/* Pointer to the nil node. All leaves have this as their left and right children.
- * It is black by default.
- */
-struct node *nil_node;
-
 struct node *create_node(int val)
 {
 	struct node *new_node = malloc(sizeof(struct node));
@@ -211,6 +206,118 @@ struct node *search(struct node *cur, int val)
 	}
 }
 
+void rb_delete_fixup(struct node **root, struct node *x)
+{
+
+	struct node *w; /* Pointer to the cousin */
+	/* Continue the loop while x is black, and while x is not root */
+	while (!IS_NIL(x->p) && !IS_RED(x)) {
+		if (IS_LEFT_CHILD(x)) {
+
+			w = x->p->r;
+			/* Case a: X is left child */
+			if (IS_RED(w)) {
+				/* case 1: Right cousin is red */
+				x->p->col = RED;
+				w->col = BLACK;
+				rotate_left(x->p);
+
+				/* Make w the right cousin again */
+				w = x->p->r;
+
+			}
+
+			/*
+			 * Case 1 will devolve into either case 2, case 3 or case 4.
+			 * We don't need to check whether color or w is black, it is implied,
+			 * either by failure of first "if", or by the rotations  of case 1
+			 */
+			if (!IS_RED(w->l) && !IS_RED(w->r)) {
+				w->col = RED;
+				x = x->p;
+			} else {
+
+				if (IS_RED(w->l)) {
+					/* Case 3: left child is red */
+					w->l->col = BLACK;
+					w->col = RED;
+					rotate_right(w);
+					w = x->p->r;
+				}
+
+				/*
+				 * Case 4: right child is red.
+				 * Case 3 will after solving devolve into Case 4
+				 */
+				w->col = x->p->col;
+				x->p->col = BLACK;
+				w->r->col = BLACK;
+				rotate_left(x->p);
+
+				/* After case 3 and 4, loop ends */
+				break;
+
+			}
+		} else {
+
+			/* Case a: X is right child */
+			w = x->p->l;
+			if (IS_RED(w)) {
+				/* case 1: left cousin is red */
+				x->p->col = RED;
+				w->col = BLACK;
+				rotate_right(x->p);
+
+				/* Make w the left cousin again */
+				w = x->p->l;
+
+			}
+
+			/*
+			 * Case 1 will devolve into either case 2, case 3 or case 4.
+			 * We don't need to check whether color or w is black, it is implied,
+			 * either by failure of first "if", or by the rotations  of case 1
+			 */
+			if (!IS_RED(w->l) && !IS_RED(w->r)) {
+				w->col = RED;
+				x = x->p;
+			} else {
+
+				if (IS_RED(w->r)) {
+					/* Case 3: right child is red */
+					w->r->col = BLACK;
+					w->col = RED;
+					rotate_left(w);
+					w = x->p->l;
+				}
+
+				/*
+				 * Case 4: left child is red.
+				 * Case 3 will after solving devolve into Case 4
+				 */
+				w->col = x->p->col;
+				x->p->col = BLACK;
+				w->r->col = BLACK;
+				rotate_right(x->p);
+
+				/* After case 3 and 4, loop ends */
+				break;
+
+			}
+		}
+	}
+
+	/* In case the root goot discolored, re color the root,
+	 * and ensure that root pointer still actually points to the root.*/
+	if (IS_NIL(x->p)) {
+		*root = x;
+		x->col = BLACK;
+
+	}
+
+
+}
+
 /* Delete:
  * First perform normal BST deletion, where by you splice the node which is chosen as a replacement.
  * The send the child of the spliced node, as an input into a function which performs the
@@ -263,8 +370,11 @@ void delete(struct node **root, int val)
 
 	if (splice != del)
 		del->val = splice->val;
-	if (!IS_RED(splice))
+	if (!IS_RED(splice)) {
 		/* Call fix-up on child_splice */
+
+		rb_delete_fixup(root, child_splice);
+	}
 	free(splice);
 	return;
 }
@@ -294,8 +404,11 @@ int main()
 	insert(&root, 30);
 	insert(&root, 25);
 	insert(&root, 1);
-
         print_in_order(root);
+	printf("\n");
+	delete(&root, 3);
+        print_in_order(root);
+
 
 	return 0;
 }

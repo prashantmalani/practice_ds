@@ -16,6 +16,11 @@ enum color {
 	RED,
 };
 
+/* Pointer to the nil node. All leaves have this as their left and right children.
+ * It is black by default.
+ */
+struct node *nil_node;
+
 /* Some helper macros */
 #define IS_RED(node) \
 	(node->col == RED)
