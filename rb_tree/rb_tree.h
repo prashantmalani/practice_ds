@@ -41,5 +41,5 @@ struct node {
 	enum color col;
 };
 
-void rotate_left(struct node *x);
-void rotate_right(struct node *x);
+void rotate_left(struct node *x, struct node **root);
+void rotate_right(struct node *x, struct node **root);

@@ -96,7 +96,7 @@ void insert(struct node **root, int val)
 				/* Case 2:X is the right child :ZIG ZAG */
 				if (!IS_LEFT_CHILD(x)) {
 					/* Rotate left */
-					rotate_left(x);
+					rotate_left(x, root);
 					/* x is now the parent, and we will perform rotate right on it */
 
 				} else {
@@ -106,7 +106,7 @@ void insert(struct node **root, int val)
 
 				/* Case 3: x is the left child : ZIG ZIG.
 				 * Right rotate parent and re colour */
-				rotate_right(x);
+				rotate_right(x, root);
 
 				/* Perform recoloring. make the parent black, and the
 				 * new right child red */
@@ -129,7 +129,7 @@ void insert(struct node **root, int val)
 				/* Case 2: X is the left child :ZIG ZAG */
 				if (IS_LEFT_CHILD(x)) {
 					/* Rotate right */
-					rotate_right(x);
+					rotate_right(x, root);
 				} else {
 					x = x->p;
 				}
@@ -137,7 +137,7 @@ void insert(struct node **root, int val)
 				/* Case 3: x is the right child : ZIG ZIG.
 				 * Note: Case 2 becomes case 3, therfore no else */
 				/* Right rotate parent and re colour */
-				rotate_left(x);
+				rotate_left(x, root);
 
 				/* Perform recoloring. make the parent black, and the
 				 * new right child red */
@@ -213,6 +213,7 @@ void rb_delete_fixup(struct node **root, struct node *x)
 	/* Continue the loop while x is black, and while x is not root */
 	while (!IS_NIL(x->p) && !IS_RED(x)) {
 		if (IS_LEFT_CHILD(x)) {
+			printf("Not here\n");
 
 			w = x->p->r;
 			/* Case a: X is left child */
@@ -220,11 +221,10 @@ void rb_delete_fixup(struct node **root, struct node *x)
 				/* case 1: Right cousin is red */
 				x->p->col = RED;
 				w->col = BLACK;
-				rotate_left(x->p);
+				rotate_left(x->p, root);
 
 				/* Make w the right cousin again */
 				w = x->p->r;
-
 			}
 
 			/*
@@ -241,7 +241,7 @@ void rb_delete_fixup(struct node **root, struct node *x)
 					/* Case 3: left child is red */
 					w->l->col = BLACK;
 					w->col = RED;
-					rotate_right(w);
+					rotate_right(w, root);
 					w = x->p->r;
 				}
 
@@ -252,7 +252,7 @@ void rb_delete_fixup(struct node **root, struct node *x)
 				w->col = x->p->col;
 				x->p->col = BLACK;
 				w->r->col = BLACK;
-				rotate_left(x->p);
+				rotate_left(x->p, root);
 
 				/* After case 3 and 4, loop ends */
 				break;
@@ -266,7 +266,7 @@ void rb_delete_fixup(struct node **root, struct node *x)
 				/* case 1: left cousin is red */
 				x->p->col = RED;
 				w->col = BLACK;
-				rotate_right(x->p);
+				rotate_right(x->p, root);
 
 				/* Make w the left cousin again */
 				w = x->p->l;
@@ -287,7 +287,7 @@ void rb_delete_fixup(struct node **root, struct node *x)
 					/* Case 3: right child is red */
 					w->r->col = BLACK;
 					w->col = RED;
-					rotate_left(w);
+					rotate_left(w, root);
 					w = x->p->l;
 				}
 
@@ -297,8 +297,8 @@ void rb_delete_fixup(struct node **root, struct node *x)
 				 */
 				w->col = x->p->col;
 				x->p->col = BLACK;
-				w->r->col = BLACK;
-				rotate_right(x->p);
+				w->l->col = BLACK;
+				rotate_right(x->p, root);
 
 				/* After case 3 and 4, loop ends */
 				break;
@@ -312,10 +312,7 @@ void rb_delete_fixup(struct node **root, struct node *x)
 	if (IS_NIL(x->p)) {
 		*root = x;
 		x->col = BLACK;
-
 	}
-
-
 }
 
 /* Delete:
@@ -406,6 +403,7 @@ int main()
 	insert(&root, 1);
         print_in_order(root);
 	printf("\n");
+
 	delete(&root, 3);
         print_in_order(root);
 

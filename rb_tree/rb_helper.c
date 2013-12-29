@@ -23,7 +23,7 @@
  *      a     b
  *
  */
-void rotate_left(struct node *x)
+void rotate_left(struct node *x, struct node **root)
 {
 	struct node *y = x->p;
 	if(IS_LEFT_CHILD(y))
@@ -35,6 +35,10 @@ void rotate_left(struct node *x)
 	y->r->p = y;
 	x->l = y;
 	y->p = x;
+
+	/* Edge case, new x is the root?? */
+	if (IS_NIL(x->p))
+		*root = x;
 }
 
 /* Rotate right helper function:
@@ -53,7 +57,7 @@ void rotate_left(struct node *x)
  *      b     c
  *
  */
-void rotate_right(struct node *x)
+void rotate_right(struct node *x, struct node **root)
 {
 	struct node *y = x->p;
 	if(IS_LEFT_CHILD(y))
@@ -65,4 +69,8 @@ void rotate_right(struct node *x)
 	y->l->p = y;
 	x->r = y;
 	y->p = x;
+
+	/* Edge case, new x is the root?? */
+	if (IS_NIL(x->p))
+		*root = x;
 }
