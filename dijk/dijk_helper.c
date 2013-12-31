@@ -37,7 +37,6 @@ void init_heap(int index_src, struct heap_t heap[], int len)
 {
 	int i;
 	int ind = 0;
-	int k = 1;
 
 	heap[ind].index = index_src;
 	heap[ind].dist = 0;
@@ -46,8 +45,28 @@ void init_heap(int index_src, struct heap_t heap[], int len)
 	for (i = 0; i < len; i++) {
 		if (i != index_src) {
 			heap[ind].index = i;
-			heap[ind].dist = k++;
+			heap[ind].dist = INT_MAX;
 			ind++;
+		}
+	}
+}
+
+/*
+ * Init the final weights array.
+ * the index of source node has 0 weight and -1 parent,
+ * and all the others have INT_MAX weight
+ */
+void init_weight_array(int index_src, struct final_t fin[], int len)
+{
+	int i;
+
+	fin[index_src].dist = 0;
+	fin[index_src].parent = -1;
+
+	for (i = 0; i < len; i++) {
+		if (i != index_src) {
+			fin[i].dist = INT_MAX;
+			fin[i].parent = -1;
 		}
 	}
 }

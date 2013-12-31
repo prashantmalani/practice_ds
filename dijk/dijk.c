@@ -12,8 +12,10 @@
 struct adj_t *list[NUM_VERTICES];
 
 /* Heap structure */
-int len_heap = NUM_VERTICES;
-struct heap_t heap[NUM_VERTICES];
+static int len_heap = NUM_VERTICES;
+static struct heap_t heap[NUM_VERTICES];
+
+static struct final_t weights[NUM_VERTICES];
 
 void init_edges()
 {
@@ -48,14 +50,24 @@ void init_edges()
 
 }
 
-int main()
+void initialize_data_structures(int source)
 {
-	struct heap_t min;
-
 	init_edges();
 
 	/* We assume 3 is the source */
 	init_heap(3, heap, len_heap);
+
+	/* Also initialize final array */
+	init_weight_array(3, weights, len_heap);
+}
+
+int main()
+{
+	struct heap_t min;
+
+
 	min = extract_min(heap, &len_heap);
+	decrease_key(6, heap, len_heap, 0);
+
 	return 0;
 }
