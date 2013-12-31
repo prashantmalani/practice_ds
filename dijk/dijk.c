@@ -1,37 +1,14 @@
-#include<stdio.h>
-#include<unistd.h>
-#include<stdlib.h>
-
-/*
- * Each entry of the adjancency list contains the index, edge and next entry.
- * If there is no next, then point to NULL.
+/* Dijkstra's algorithm implementation
+ * We use adjacency lists to maintain edge info
+ * We also use min heaps to keep track of the closest
+ * next vertex.
+ *
+ * Author: Prashant Malani <p.malani@gmail.com>
+ * Date  : 12/31/2013
  */
-struct adj_t {
-	int index;
-	int edge;
-	struct adj_t *next;
-};
+#include "dijk.h"
 
 struct adj_t *list[7];
-
-
-void add_edge(int index, int val, struct adj_t **head)
-{
-	struct adj_t *new = malloc(sizeof(struct adj_t));
-	new->index = index;
-	new->edge = val;
-	new->next = *head;
-	*head = new;
-}
-
-void print_adj_list(struct adj_t *head)
-{
-	struct adj_t *cur;
-	for (cur = head; cur != NULL; cur=cur->next)
-		printf("ind = %d, edge = %d \t", cur->index, cur->edge);
-
-	printf("\n");
-}
 
 int main()
 {
