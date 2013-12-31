@@ -8,9 +8,14 @@
  */
 #include "dijk.h"
 
-struct adj_t *list[7];
+/* Adjacency list pointer array */
+struct adj_t *list[NUM_VERTICES];
 
-int main()
+/* Heap structure */
+int len_heap = NUM_VERTICES;
+struct heap_t heap[NUM_VERTICES];
+
+void init_edges()
 {
 	/* Initialize the adjancency list for a sample graph */
 
@@ -41,17 +46,16 @@ int main()
 	add_edge(3, 3, &list[6]);
 	add_edge(2, 4, &list[6]);
 
+}
 
-	print_adj_list(list[0]);
-	print_adj_list(list[1]);
-	print_adj_list(list[2]);
-	print_adj_list(list[3]);
-	print_adj_list(list[4]);
-	print_adj_list(list[5]);
-	print_adj_list(list[6]);
+int main()
+{
+	struct heap_t min;
 
+	init_edges();
 
-
-
+	/* We assume 3 is the source */
+	init_heap(3, heap, len_heap);
+	min = extract_min(heap, &len_heap);
 	return 0;
 }
