@@ -141,3 +141,10 @@ void decrease_key(int index, struct heap_t heap[], int len, int new_val)
 		}
 	}
 }
+
+void print_fin_array(struct final_t final[], int len)
+{
+	int i;
+	for (i = 0; i < len; i++)
+		printf("Index = %d, Weight = %d, Parent = %d\n", i, final[i].dist, final[i].parent);
+}

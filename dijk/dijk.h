@@ -33,3 +33,4 @@ void init_heap(int index_src, struct heap_t heap[], int len);
 void init_weight_array(int index_src, struct final_t fin[], int len);
 struct heap_t extract_min(struct heap_t heap[], int *len);
 void decrease_key(int index, struct heap_t heap[], int len, int new_val);
+void print_fin_array(struct final_t final[], int len);

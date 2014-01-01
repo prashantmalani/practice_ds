@@ -15,11 +15,12 @@ struct adj_t *list[NUM_VERTICES];
 static int len_heap = NUM_VERTICES;
 static struct heap_t heap[NUM_VERTICES];
 
+/* Store the final indices, their weights and parents */
 static struct final_t weights[NUM_VERTICES];
 
+/* Initialize the adjancency list for a sample graph */
 void init_edges()
 {
-	/* Initialize the adjancency list for a sample graph */
 
 	/* Vertex A */
 	add_edge(5, 4, &list[0]);
@@ -55,10 +56,59 @@ void initialize_data_structures(int source)
 	init_edges();
 
 	/* We assume 3 is the source */
-	init_heap(3, heap, len_heap);
+	init_heap(source, heap, len_heap);
 
 	/* Also initialize final array */
-	init_weight_array(3, weights, len_heap);
+	init_weight_array(source, weights, len_heap);
+}
+
+void do_dijkstra(int source)
+{
+
+	struct heap_t cur_min;
+	struct adj_t *cur_ver;
+	int index, new_weight;
+
+	/* All the initializations are already done */
+	while (len_heap > 0) {
+
+		/*
+		 * Get the least and add it's values to
+		 * weights array.
+		 */
+		cur_min = extract_min(heap, &len_heap);
+		index = cur_min.index;
+		weights[index].dist = cur_min.dist;
+
+		/*
+		 * We expect the parents to already be set
+		 * when we update the distances of each vertex
+		 */
+
+		/* Traverse through the elements adj list and
+		 * update the weights in heap,and parents in the
+		 * final array.
+		 */
+		for (cur_ver = list[index]; cur_ver != NULL; cur_ver= cur_ver->next) {
+			new_weight = weights[index].dist +
+				cur_ver->edge;
+
+			/* If the new route is shorter, update */
+			if (new_weight < weights[cur_ver->index].dist) {
+				/* Update parent in final array */
+				weights[cur_ver->index].parent = index;
+
+				/* Update dist in final array */
+				weights[cur_ver->index].dist = new_weight;
+
+				/* Update heap */
+				decrease_key(cur_ver->index, heap, len_heap, new_weight);
+
+			}
+
+		}
+	}
+
 }
 
 int main()
@@ -66,8 +116,9 @@ int main()
 	struct heap_t min;
 
 
-	min = extract_min(heap, &len_heap);
-	decrease_key(6, heap, len_heap, 0);
+	initialize_data_structures(3);
+	do_dijkstra(3);
+	print_fin_array(weights, NUM_VERTICES);
 
 	return 0;
 }
