@@ -27,13 +27,7 @@ void merge_sort(int a[], int b[], int l, int r)
 	for (k = l; k <= r; k++) {
 		if (i > m || j > r)
 			break;
-		if (a[i] < a[j]) {
-			b[k] = a[i];
-			i++;
-		} else {
-			b[k] = a[j];
-			j++;
-		}
+		b[k] = a[i] < a[j] ? a[i++] : a[j++];
 	}
 
 	/*
